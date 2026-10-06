@@ -185,6 +185,7 @@ export async function enqueue(
   file?: File,
 ) {
   await exclusive(async () => {
+    if (file) await (await database).put("files", file, `${base?.user.id}:${payload.id}`);
     queue.push({ id: crypto.randomUUID(), kind, payload, base: original, file });
     await save();
     publish();
@@ -280,19 +281,22 @@ export async function logout() {
   queryClient.clear();
   emit(null);
 }
-export async function download(file: Attachment) {
+export async function attachmentBlob(id: string): Promise<Blob> {
   const db = await database;
-  const key = `${base?.user.id}:${file.id}`;
+  const key = `${base?.user.id}:${id}`;
   let blob: Blob | undefined = await db.get("files", key);
-  const pending = queue.find((op) => op.payload.id === file.id && op.file);
+  const pending = queue.find((op) => op.payload.id === id && op.file);
   if (pending) blob = pending.file;
   if (!blob) {
-    const response = await fetch(`/api/attachments/${file.id}`);
+    const response = await fetch(`/api/attachments/${id}`);
     if (!response.ok) throw new Error(response.status === 401 ? "authExpired" : "network_error");
     blob = await response.blob();
     await db.put("files", blob, key);
   }
-  const url = URL.createObjectURL(blob);
+  return blob;
+}
+export async function download(file: Attachment) {
+  const url = URL.createObjectURL(await attachmentBlob(file.id));
   const anchor = document.createElement("a");
   anchor.href = url;
   anchor.download = file.name;

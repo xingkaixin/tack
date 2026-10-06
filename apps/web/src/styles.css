@@ -1348,3 +1348,17 @@ button svg {
     transition: none !important;
   }
 }
+
+.description-image {
+  margin: 12px 0;
+}
+.description-image img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+.description-image span {
+  color: var(--muted-foreground);
+  font-size: 13px;
+}

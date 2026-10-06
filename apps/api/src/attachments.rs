@@ -66,15 +66,20 @@ pub async fn download(
     Path(id): Path<Uuid>,
 ) -> Result<Response> {
     let uid = auth::user(&app, &headers).await?;
-    let row = sqlx::query("SELECT issue_id,data FROM attachments WHERE id=$1")
+    let row = sqlx::query("SELECT issue_id,data,mime FROM attachments WHERE id=$1")
         .bind(id)
         .fetch_optional(&app.db)
         .await?
         .ok_or_else(Error::missing)?;
     issue_workspace(&app.db, uid, row.get("issue_id")).await?;
+    let mime: String = row.get("mime");
+    let content_type = match mime.as_str() {
+        "image/png" | "image/jpeg" | "image/gif" | "image/webp" => mime.as_str(),
+        _ => "application/octet-stream",
+    };
     Ok(Response::builder()
         .status(StatusCode::OK)
-        .header(header::CONTENT_TYPE, "application/octet-stream")
+        .header(header::CONTENT_TYPE, content_type)
         .header(header::CONTENT_DISPOSITION, "attachment")
         .header(header::CACHE_CONTROL, "no-store")
         .header("x-content-type-options", "nosniff")

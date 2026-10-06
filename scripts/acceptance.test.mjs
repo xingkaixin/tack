@@ -359,6 +359,23 @@ test(
             .fill("Offline planning survives reload");
           await page.getByRole("textbox", { name: "标题", exact: true }).press("Tab");
           await page.locator(".rich-editor").fill("Offline shared description.");
+          await page.locator(".rich-editor").evaluate((element) => {
+            const bytes = Uint8Array.from(
+              atob(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=",
+              ),
+              (c) => c.charCodeAt(0),
+            );
+            const clipboardData = new DataTransfer();
+            clipboardData.items.add(new File([bytes], "pasted.png", { type: "image/png" }));
+            element.dispatchEvent(
+              new ClipboardEvent("paste", { clipboardData, bubbles: true, cancelable: true }),
+            );
+          });
+          await expect(page.locator(".description-image img")).toBeVisible();
+          await expect
+            .poll(() => page.locator(".description-image img").evaluate((img) => img.naturalWidth))
+            .toBe(1);
           await page.getByLabel("评论", { exact: true }).fill("Written while disconnected.");
           await page.getByRole("button", { name: "发表评论" }).click();
           await page.getByLabel("添加附件", { exact: true }).setInputFiles({
@@ -379,13 +396,18 @@ test(
           await expect(
             page.getByText("Written while disconnected.", { exact: true }),
           ).toBeVisible();
+          await expect(page.locator(".description-image img")).toBeVisible();
+          await expect
+            .poll(() => page.locator(".description-image img").evaluate((img) => img.naturalWidth))
+            .toBe(1);
           await context.setOffline(false);
           await waitFor(async () => {
             const s = (await request("/api/snapshot")).value;
             return (
               s.issues.some((i) => i.fields.title === "Created offline") &&
               s.comments.some((c) => c.body === "Written while disconnected.") &&
-              s.attachments.some((a) => a.name === "offline.txt")
+              s.attachments.some((a) => a.name === "offline.txt") &&
+              s.attachments.some((a) => a.issue_id === issue && a.name === "pasted.png")
             );
           });
           await expect(page.getByText("内容已同步", { exact: true })).toBeVisible();
@@ -403,6 +425,13 @@ test(
         await expect(secondPage.locator(".rich-editor")).toContainText(
           "Offline shared description.",
         );
+        await expect(secondPage.locator(".description-image img")).toBeVisible();
+        await expect
+          .poll(() =>
+            secondPage.locator(".description-image img").evaluate((img) => img.naturalWidth),
+          )
+          .toBe(1);
+        await secondPage.screenshot({ path: "test-results/pasted-image.png" });
         await secondPage.locator(".rich-editor").click();
         await secondPage.keyboard.press("End");
         await secondPage.keyboard.type(" Together.");
