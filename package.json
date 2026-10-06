@@ -1,0 +1,19 @@
+{
+  "name": "tack",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "pnpm --filter @tack/web build",
+    "check": "pnpm exec oxlint apps/web/src && pnpm --filter @tack/web check && cargo check --workspace",
+    "format": "pnpm exec oxfmt . && cargo fmt --all",
+    "test": "node --test scripts/*.test.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "oxfmt": "0.71.0",
+    "oxlint": "1.86.0",
+    "ws": "8.22.0",
+    "yjs": "13.6.33"
+  },
+  "packageManager": "pnpm@12.9.1"
+}
