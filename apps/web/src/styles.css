@@ -175,24 +175,77 @@ button svg {
   padding: 0 8px 28px;
 }
 .workspace-switch {
-  position: relative;
+  margin: 0 0 16px;
+}
+.workspace-trigger {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 0 8px 20px;
-}
-.workspace-switch select {
-  appearance: none;
-  border: none;
+  width: 100%;
+  min-height: 52px;
+  padding: 10px 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  text-align: left;
+  color: var(--foreground);
   background: transparent;
-  font-weight: 600;
-  padding: 5px 15px 5px 0;
 }
-.workspace-switch > svg {
-  position: absolute;
-  right: 0;
-  pointer-events: none;
+.workspace-trigger:hover,
+.workspace-trigger[data-popup-open] {
+  background: var(--background);
+  border-color: var(--border);
+}
+.workspace-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 550;
+}
+.workspace-chevron {
+  display: flex;
   color: var(--muted-foreground);
+}
+.workspace-positioner {
+  z-index: 60;
+  outline: none;
+}
+.workspace-popup {
+  width: max(240px, var(--anchor-width));
+  max-width: calc(100vw - 24px);
+  max-height: min(360px, var(--available-height));
+  overflow-y: auto;
+  padding: 6px;
+  background: var(--background);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow:
+    0 8px 28px #142a2226,
+    0 2px 6px #142a220d;
+  outline: none;
+}
+.workspace-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  outline: none;
+}
+.workspace-option[data-highlighted] {
+  background: var(--hover);
+}
+.workspace-option[data-selected] {
+  color: var(--primary);
+}
+.workspace-check {
+  display: flex;
+  width: 16px;
 }
 .avatar {
   display: inline-flex;

@@ -1,4 +1,5 @@
 import { useState, useEffect, useSyncExternalStore, type FormEvent } from "react";
+import { Select } from "@base-ui/react/select";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import {
@@ -263,27 +264,46 @@ function WorkspaceApp({ onLogout }: { onLogout: () => void }) {
           <span className="logo-mark">t</span>tack
         </div>
         <div className="workspace-switch">
-          <Avatar name={workspace.name} />
-          <select
-            aria-label={t("selectWorkspace")}
+          <Select.Root
             value={workspace.id}
-            onChange={(e) => {
-              go({
-                workspace: e.target.value,
-                project: undefined,
-                issue: undefined,
-                page: "issues",
-              });
+            items={data.workspaces.map((w) => ({ value: w.id, label: w.name }))}
+            onValueChange={(value) => {
+              if (!value) return;
+              go({ workspace: value, project: undefined, issue: undefined, page: "issues" });
               setQuery("");
             }}
           >
-            {data.workspaces.map((w) => (
-              <option value={w.id} key={w.id}>
-                {w.name}
-              </option>
-            ))}
-          </select>
-          <ChevronsUpDown size={13} />
+            <Select.Trigger className="workspace-trigger" aria-label={t("selectWorkspace")}>
+              <Avatar name={workspace.name} />
+              <Select.Value className="workspace-name" />
+              <Select.Icon className="workspace-chevron">
+                <ChevronsUpDown size={16} />
+              </Select.Icon>
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner
+                side="bottom"
+                align="start"
+                sideOffset={6}
+                alignItemWithTrigger={false}
+                className="workspace-positioner"
+              >
+                <Select.Popup className="workspace-popup">
+                  <Select.List>
+                    {data.workspaces.map((w) => (
+                      <Select.Item key={w.id} value={w.id} className="workspace-option">
+                        <Avatar name={w.name} />
+                        <Select.ItemText className="workspace-name">{w.name}</Select.ItemText>
+                        <Select.ItemIndicator className="workspace-check">
+                          <Check size={16} />
+                        </Select.ItemIndicator>
+                      </Select.Item>
+                    ))}
+                  </Select.List>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
         </div>
         <Button variant="outline" className="sidebar-create" onClick={create}>
           <Plus size={16} />
