@@ -4,9 +4,13 @@
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "build": "pnpm --filter @tack/web build",
-    "check": "pnpm exec oxlint apps/web/src && pnpm --filter @tack/web check && cargo check --workspace",
+    "check": "oxlint --deny-warnings apps/web/src && pnpm --filter @tack/web check && cargo clippy --workspace -- -D warnings",
     "format": "pnpm exec oxfmt . && cargo fmt --all",
-    "test": "node --test scripts/*.test.mjs"
+    "test": "node --env-file-if-exists=.env scripts/test.mjs",
+    "start": "pnpm build && node scripts/start.mjs",
+    "check:format": "oxfmt --check . && cargo fmt --all --check",
+    "test:serve": "node --env-file-if-exists=.env scripts/test-server.mjs",
+    "test:acceptance": "node --test scripts/acceptance.test.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
