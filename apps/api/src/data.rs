@@ -28,20 +28,18 @@ pub async fn snapshot(State(app): State<App>, headers: HeaderMap) -> Result<Json
     let comments:Vec<Value>=sqlx::query_scalar("SELECT to_jsonb(c) FROM comments c JOIN issues i ON i.id=c.issue_id JOIN projects p ON p.id=i.project_id JOIN members m ON m.workspace_id=p.workspace_id WHERE m.user_id=$1 ORDER BY c.created_at").bind(uid).fetch_all(&app.db).await?;
     let activity:Vec<Value>=sqlx::query_scalar("SELECT to_jsonb(a) FROM activity a JOIN issues i ON i.id=a.issue_id JOIN projects p ON p.id=i.project_id JOIN members m ON m.workspace_id=p.workspace_id WHERE m.user_id=$1 ORDER BY a.created_at DESC LIMIT 2000").bind(uid).fetch_all(&app.db).await?;
     let attachments:Vec<Value>=sqlx::query_scalar("SELECT jsonb_build_object('id',a.id,'issue_id',a.issue_id,'name',a.name,'mime',a.mime,'size',octet_length(a.data),'user_id',a.user_id,'created_at',a.created_at) FROM attachments a JOIN issues i ON i.id=a.issue_id JOIN projects p ON p.id=i.project_id JOIN members m ON m.workspace_id=p.workspace_id WHERE m.user_id=$1 ORDER BY a.created_at").bind(uid).fetch_all(&app.db).await?;
+    let documents:Vec<Value>=sqlx::query_scalar("SELECT jsonb_build_object('issue_id',d.issue_id,'state',encode(d.state,'base64')) FROM documents d JOIN issues i ON i.id=d.issue_id JOIN projects p ON p.id=i.project_id JOIN members m ON m.workspace_id=p.workspace_id WHERE m.user_id=$1").bind(uid).fetch_all(&app.db).await?;
     Ok(Json(
-        json!({"user":user,"workspaces":workspaces,"members":members,"projects":projects,"issues":issues,"comments":comments,"activity":activity,"attachments":attachments}),
+        json!({"documents":documents,"user":user,"workspaces":workspaces,"members":members,"projects":projects,"issues":issues,"comments":comments,"activity":activity,"attachments":attachments}),
     ))
 }
-pub async fn issue_workspace(app: &App, uid: Uuid, id: Uuid) -> Result<Uuid> {
-    let workspace: Uuid = sqlx::query_scalar(
-        "SELECT p.workspace_id FROM issues i JOIN projects p ON p.id=i.project_id WHERE i.id=$1",
-    )
-    .bind(id)
-    .fetch_optional(&app.db)
-    .await?
-    .ok_or_else(Error::missing)?;
-    auth::member(app, uid, workspace, false).await?;
-    Ok(workspace)
+pub async fn issue_workspace<'e>(
+    executor: impl sqlx::PgExecutor<'e>,
+    uid: Uuid,
+    id: Uuid,
+) -> Result<Uuid> {
+    sqlx::query_scalar("SELECT p.workspace_id FROM issues i JOIN projects p ON p.id=i.project_id JOIN members m ON m.workspace_id=p.workspace_id WHERE i.id=$1 AND m.user_id=$2")
+        .bind(id).bind(uid).fetch_optional(executor).await?.ok_or_else(Error::missing)
 }
 #[derive(Deserialize)]
 pub struct Operation {
@@ -120,9 +118,11 @@ async fn validate_fields(
         .as_array()
         .ok_or_else(|| Error::bad("labels_invalid"))?;
     if labels.len() > 20
-        || labels
-            .iter()
-            .any(|label| label.as_str().is_none_or(|s| s.is_empty() || s.len() > 50))
+        || labels.iter().any(|label| {
+            label
+                .as_str()
+                .is_none_or(|s| s.is_empty() || s.chars().count() > 50)
+        })
     {
         return Err(Error::bad("labels_invalid"));
     }
@@ -216,7 +216,7 @@ pub async fn mutate(
         }
         "project.create" => {
             let wid = uuid(p, "workspace_id")?;
-            auth::member(&app, uid, wid, false).await?;
+            auth::member(&mut *tx, uid, wid, false).await?;
             let id = uuid(p, "id")?;
             let name = string(p, "name", 100)?;
             let identifier = string(p, "identifier", 10)?.to_uppercase();
@@ -247,7 +247,7 @@ pub async fn mutate(
                 .await?
                 .ok_or_else(Error::missing)?;
             let workspace: Uuid = row.get("workspace_id");
-            auth::member(&app, uid, workspace, false).await?;
+            auth::member(&mut *tx, uid, workspace, false).await?;
             let mut fields = if op.kind == "issue.create" {
                 json!({"title":"","status":"backlog","priority":"none","assignee":null,"due_date":null,"labels":[],"parent":null,"blocked_by":[]})
             } else {
@@ -314,7 +314,7 @@ pub async fn mutate(
         }
         "comment.create" => {
             let issue = uuid(p, "issue_id")?;
-            issue_workspace(&app, uid, issue).await?;
+            issue_workspace(&mut *tx, uid, issue).await?;
             let id = uuid(p, "id")?;
             let body = string(p, "body", 20000)?;
             sqlx::query("INSERT INTO comments(id,issue_id,user_id,body) VALUES($1,$2,$3,$4)")
@@ -352,7 +352,7 @@ pub async fn add_member(
     Json(input): Json<MemberInput>,
 ) -> Result<Json<Value>> {
     let uid = auth::user(&app, &headers).await?;
-    auth::member(&app, uid, workspace, true).await?;
+    auth::member(&app.db, uid, workspace, true).await?;
     if !["admin", "member"].contains(&input.role.as_str()) {
         return Err(Error::bad("role_invalid"));
     }

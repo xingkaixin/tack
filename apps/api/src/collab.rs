@@ -33,7 +33,7 @@ pub async fn upgrade(
     ws: WebSocketUpgrade,
 ) -> Result<Response> {
     let uid = auth::user(&app, &headers).await?;
-    issue_workspace(&app, uid, id).await?;
+    issue_workspace(&app.db, uid, id).await?;
     crate::check_origin(&app, &headers)?;
     Ok(ws
         .max_message_size(2 * 1024 * 1024)
@@ -64,14 +64,15 @@ async fn persist(app: &App, id: Uuid, bytes: &[u8]) -> Result<Vec<u8>> {
     Ok(state)
 }
 async fn serve(app: App, id: Uuid, uid: Uuid, headers: HeaderMap, mut socket: WebSocket) {
-    let channel = {
+    let (channel, mut rx) = {
         let mut rooms = app.rooms.lock().await;
-        rooms
+        let channel = rooms
             .entry(id)
             .or_insert_with(|| broadcast::channel(128).0)
-            .clone()
+            .clone();
+        let rx = channel.subscribe();
+        (channel, rx)
     };
-    let mut rx = channel.subscribe();
     let initial: Option<Vec<u8>> =
         sqlx::query_scalar("SELECT state FROM documents WHERE issue_id=$1")
             .bind(id)
@@ -111,7 +112,7 @@ async fn serve(app: App, id: Uuid, uid: Uuid, headers: HeaderMap, mut socket: We
                 Err(_)=>break
             },
             _=heartbeat.tick()=>{
-                if auth::user(&app,&headers).await.is_err()||issue_workspace(&app,uid,id).await.is_err(){break;}
+                if auth::user(&app,&headers).await.is_err()||issue_workspace(&app.db,uid,id).await.is_err(){break;}
                 if socket.send(Message::Ping(vec![].into())).await.is_err(){break;}
             }
         }

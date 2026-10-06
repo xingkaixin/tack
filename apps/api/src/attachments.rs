@@ -21,7 +21,7 @@ pub async fn upload(
     mut multipart: Multipart,
 ) -> Result<Json<Value>> {
     let uid = auth::user(&app, &headers).await?;
-    issue_workspace(&app, uid, issue).await?;
+    issue_workspace(&app.db, uid, issue).await?;
     let field = multipart
         .next_field()
         .await
@@ -71,7 +71,7 @@ pub async fn download(
         .fetch_optional(&app.db)
         .await?
         .ok_or_else(Error::missing)?;
-    issue_workspace(&app, uid, row.get("issue_id")).await?;
+    issue_workspace(&app.db, uid, row.get("issue_id")).await?;
     Ok(Response::builder()
         .status(StatusCode::OK)
         .header(header::CONTENT_TYPE, "application/octet-stream")

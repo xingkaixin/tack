@@ -34,12 +34,17 @@ pub async fn user(app: &App, headers: &HeaderMap) -> Result<Uuid> {
         .await?
         .ok_or_else(Error::unauthorized)
 }
-pub async fn member(app: &App, uid: Uuid, workspace: Uuid, admin: bool) -> Result<()> {
+pub async fn member<'e>(
+    executor: impl sqlx::PgExecutor<'e>,
+    uid: Uuid,
+    workspace: Uuid,
+    admin: bool,
+) -> Result<()> {
     let role: Option<String> =
         sqlx::query_scalar("SELECT role FROM members WHERE workspace_id=$1 AND user_id=$2")
             .bind(workspace)
             .bind(uid)
-            .fetch_optional(&app.db)
+            .fetch_optional(executor)
             .await?;
     match role {
         Some(role) if !admin || role == "admin" => Ok(()),
@@ -47,7 +52,7 @@ pub async fn member(app: &App, uid: Uuid, workspace: Uuid, admin: bool) -> Resul
     }
 }
 pub fn hash(password: &str) -> Result<String> {
-    if password.len() < 10 || password.len() > 256 {
+    if password.chars().count() < 10 || password.chars().count() > 256 {
         return Err(Error::bad("password_length"));
     }
     Argon2::default()
@@ -142,7 +147,7 @@ pub async fn login(
     State(app): State<App>,
     Json(input): Json<Credentials>,
 ) -> Result<(HeaderMap, Json<Value>)> {
-    if input.password.len() > 256 {
+    if input.password.chars().count() > 256 {
         return Err(Error::unauthorized());
     }
     let row = sqlx::query("SELECT id,password_hash FROM users WHERE email=$1")

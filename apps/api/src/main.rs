@@ -25,7 +25,7 @@ pub struct App {
 }
 pub fn required(value: &str, max: usize) -> Result<&str> {
     let value = value.trim();
-    if value.is_empty() || value.len() > max {
+    if value.is_empty() || value.chars().count() > max {
         return Err(Error::bad("value_invalid"));
     }
     Ok(value)
