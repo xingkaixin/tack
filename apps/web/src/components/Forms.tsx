@@ -8,7 +8,14 @@ import {
 } from "react";
 import { useI18n } from "../lib/i18n";
 import { api, enqueue, refresh } from "../lib/store";
-import { emptyFields, statuses, priorities, type Snapshot, type Issue } from "../lib/types";
+import {
+  emptyFields,
+  statuses,
+  priorities,
+  type Snapshot,
+  type Issue,
+  type Fields,
+} from "../lib/types";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "./ui/dialog";
 import { Button } from "./ui/button";
 export function Modal({
@@ -58,6 +65,7 @@ export function CreateForm({
   parent,
   onClose,
   onCreated,
+  initialStatus = "backlog",
 }: {
   kind: "issue" | "project" | "workspace" | "member";
   data: Snapshot;
@@ -66,6 +74,7 @@ export function CreateForm({
   parent?: Issue;
   onClose: () => void;
   onCreated?: (id: string) => void;
+  initialStatus?: Fields["status"];
 }) {
   const { t } = useI18n();
   const [error, setError] = useState("");
@@ -156,7 +165,7 @@ export function CreateForm({
             </Field>
             <div className="form-grid">
               <Field label={t("status")}>
-                <select name="status">
+                <select name="status" defaultValue={initialStatus}>
                   {statuses.map((value) => (
                     <option key={value} value={value}>
                       {t(value)}

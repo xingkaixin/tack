@@ -2,8 +2,8 @@ import { useReactTable, getCoreRowModel, flexRender, type ColumnDef } from "@tan
 import { useMemo } from "react";
 import { Plus, Inbox, SignalHigh, SignalMedium, SignalLow, Minus, AlertCircle } from "lucide-react";
 import { useI18n } from "../lib/i18n";
-import { enqueue } from "../lib/store";
-import { statuses, type Issue, type Member } from "../lib/types";
+import { IssueBoard } from "./IssueBoard";
+import { type Fields, type Issue, type Member } from "../lib/types";
 import { StatusDot, Avatar } from "./IssueDetail";
 import { Button } from "./ui/button";
 export function PriorityIcon({ priority }: { priority: string }) {
@@ -27,7 +27,7 @@ export function IssueList({
   members: Member[];
   view: string;
   onSelect: (id: string) => void;
-  onCreate: () => void;
+  onCreate: (status?: Fields["status"]) => void;
 }) {
   const { t, locale } = useI18n();
   const columns = useMemo<ColumnDef<Issue>[]>(
@@ -106,6 +106,8 @@ export function IssueList({
     [t, locale, members],
   );
   const table = useReactTable({ data: issues, columns, getCoreRowModel: getCoreRowModel() });
+  if (view === "board")
+    return <IssueBoard issues={issues} members={members} onSelect={onSelect} onCreate={onCreate} />;
   if (!issues.length)
     return (
       <div className="empty-state">
@@ -114,74 +116,10 @@ export function IssueList({
         </div>
         <h2>{t("empty")}</h2>
         <p>{t("emptyHint")}</p>
-        <Button onClick={onCreate}>
+        <Button onClick={() => onCreate()}>
           <Plus size={15} />
           {t("newIssue")}
         </Button>
-      </div>
-    );
-  if (view === "board")
-    return (
-      <div className="board">
-        {statuses.map((status) => {
-          const items = issues.filter((issue) => issue.fields.status === status);
-          return (
-            <section
-              className="board-column"
-              key={status}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => {
-                e.preventDefault();
-                const id = e.dataTransfer.getData("text/plain");
-                const issue = issues.find((i) => i.id === id);
-                if (issue && issue.fields.status !== status)
-                  void enqueue(
-                    "issue.patch",
-                    { id, fields: { status } },
-                    { status: issue.fields.status },
-                  );
-              }}
-            >
-              <div className="board-heading">
-                <StatusDot status={status} />
-                <h3>{t(status)}</h3>
-                <span className="count">{items.length}</span>
-              </div>
-              <div className="board-cards">
-                {items.map((issue) => (
-                  <button
-                    className="issue-card"
-                    draggable
-                    onDragStart={(e) => e.dataTransfer.setData("text/plain", issue.id)}
-                    key={issue.id}
-                    onClick={() => onSelect(issue.id)}
-                  >
-                    <span className="issue-id">{issue.identifier}</span>
-                    <h4>{issue.fields.title}</h4>
-                    <div className="card-labels">
-                      {issue.fields.labels.map((label) => (
-                        <span className="label-chip" key={label}>
-                          {label}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="card-bottom">
-                      <PriorityIcon priority={issue.fields.priority} />
-                      {issue.fields.due_date && <span>{issue.fields.due_date.slice(5)}</span>}
-                      <span className="spacer" />
-                      {issue.fields.assignee && (
-                        <Avatar
-                          name={members.find((m) => m.id === issue.fields.assignee)?.name || "?"}
-                          small
-                        />
-                      )}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </section>
-          );
-        })}
       </div>
     );
   return (

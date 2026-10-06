@@ -12,6 +12,7 @@ export const statuses = ["backlog", "todo", "in_progress", "done", "cancelled"] 
 export const priorities = ["none", "low", "medium", "high", "urgent"] as const;
 export type Fields = {
   title: string;
+  board_rank?: string | null;
   status: (typeof statuses)[number];
   priority: (typeof priorities)[number];
   assignee: string | null;

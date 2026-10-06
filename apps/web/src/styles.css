@@ -4,7 +4,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
-  --color-primary-foreground: #fff;
+  --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--foreground);
   --color-muted: var(--muted);
@@ -27,14 +27,15 @@
     sans-serif;
   color-scheme: light;
   --background: #fff;
-  --foreground: #202c33;
-  --primary: #176b5b;
-  --secondary: #deeee7;
-  --muted: #f2f5f4;
-  --muted-foreground: #627079;
-  --border: #dce3e1;
-  --sidebar: #f1f5f3;
-  --hover: #edf4f0;
+  --foreground: #232323;
+  --primary: #232323;
+  --primary-foreground: #fff;
+  --secondary: #eeeeec;
+  --muted: #f8f8f7;
+  --muted-foreground: #73736f;
+  --border: #e7e7e4;
+  --sidebar: #fbfbfa;
+  --hover: #f1f1ef;
   font-size: 14px;
   line-height: 1.5;
   color: var(--foreground);
@@ -45,15 +46,16 @@
 }
 :root.dark {
   color-scheme: dark;
-  --background: #1b2226;
-  --foreground: #e2e9e9;
-  --primary: #287c6c;
-  --secondary: #293e3b;
-  --muted: #252e32;
-  --muted-foreground: #9aa8ad;
-  --border: #323d42;
-  --sidebar: #20292d;
-  --hover: #273632;
+  --background: #202020;
+  --foreground: #eeeeeb;
+  --primary: #eeeeeb;
+  --primary-foreground: #232323;
+  --secondary: #353533;
+  --muted: #252525;
+  --muted-foreground: #aaa9a4;
+  --border: #393937;
+  --sidebar: #232323;
+  --hover: #30302e;
 }
 * {
   box-sizing: border-box;
@@ -136,26 +138,25 @@ button svg {
 .wordmark {
   display: flex;
   align-items: center;
-  gap: 9px;
-  font-size: 25px;
-  font-weight: 750;
-  letter-spacing: -1px;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.6px;
 }
 .logo-mark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 27px;
-  height: 30px;
-  color: #fff;
+  width: 24px;
+  height: 26px;
+  color: var(--primary-foreground);
   background: var(--primary);
-  border-radius: 6px 6px 11px 6px;
-  font-size: 26px;
+  border-radius: 5px;
+  font-size: 22px;
   font-style: italic;
   font-weight: 800;
   line-height: 1;
-  padding-right: 2px;
-  padding-bottom: 3px;
+  padding: 0 2px 2px 0;
 }
 .app-shell {
   display: flex;
@@ -172,7 +173,7 @@ button svg {
   flex-direction: column;
 }
 .sidebar .wordmark {
-  padding: 0 8px 28px;
+  padding: 0 8px 20px;
 }
 .workspace-switch {
   margin: 0 0 16px;
@@ -254,8 +255,8 @@ button svg {
   width: 30px;
   height: 30px;
   border-radius: 9px;
-  background: #dceae4;
-  color: #3e6d60;
+  background: var(--secondary);
+  color: var(--foreground);
   font-size: 12px;
   font-weight: 600;
   flex-shrink: 0;
@@ -292,7 +293,6 @@ button svg {
   background: var(--secondary);
   color: var(--primary);
   font-weight: 600;
-  box-shadow: inset 3px 0 var(--primary);
 }
 .sidebar nav > button:hover {
   background: var(--hover);
@@ -372,7 +372,9 @@ button svg {
 .main-area {
   flex: 1;
   min-width: 0;
-  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   background: var(--background);
 }
 .page-header {
@@ -470,6 +472,8 @@ button svg {
 }
 .issue-table-wrap {
   overflow: auto;
+  flex: 1;
+  min-height: 0;
 }
 .issue-table {
   width: 100%;
@@ -625,23 +629,37 @@ button svg {
 }
 .board {
   display: flex;
-  gap: 16px;
-  padding: 24px 32px;
+  flex: 1;
+  min-height: 0;
   overflow-x: auto;
-  min-height: calc(100dvh - 220px);
-  background: var(--muted);
-  align-items: flex-start;
+  overflow-y: hidden;
+  background: var(--background);
+  padding: 0 16px;
+  align-items: stretch;
+  overscroll-behavior-x: contain;
 }
 .board-column {
-  min-width: 240px;
+  width: 296px;
+  min-width: 296px;
   flex: 1;
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+  padding: 0 16px 24px;
+  background: var(--muted);
+  scrollbar-width: thin;
+  overscroll-behavior-y: contain;
+  transition: background-color 120ms;
 }
 .board-heading {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 0 4px 16px;
-  min-height: 40px;
+  padding: 16px 0;
+  min-height: 64px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: inherit;
 }
 .board-heading h3 {
   font-size: 13px;
@@ -655,25 +673,29 @@ button svg {
 .board-cards {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  min-height: 250px;
-  padding-bottom: 40px;
+  gap: 12px;
+  min-height: 200px;
+  padding: 0 0 48px;
 }
 .issue-card {
+  position: relative;
   background: var(--background);
   border: 1px solid var(--border);
-  padding: 16px;
   text-align: left;
-  border-radius: 8px;
-  box-shadow: 0 1px 2px #132e2310;
+  border-radius: 10px;
+  box-shadow: 0 2px 3px #00000004;
+  transition:
+    box-shadow 150ms,
+    border-color 150ms;
 }
 .issue-card:hover {
-  border-color: #96b5aa;
+  border-color: color-mix(in srgb, var(--foreground) 22%, var(--border));
+  box-shadow: 0 4px 12px #00000009;
 }
 .issue-card h4 {
   font-size: 14px;
   font-weight: 550;
-  margin: 8px 0 12px;
+  margin: 10px 0 14px;
   line-height: 1.6;
   overflow-wrap: anywhere;
 }
@@ -686,9 +708,12 @@ button svg {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-top: 14px;
+  margin: 16px -16px -16px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
   color: var(--muted-foreground);
   font-size: 11px;
+  min-height: 46px;
 }
 .notice {
   display: flex;
@@ -829,11 +854,9 @@ button svg {
 .properties {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px 24px;
-  padding: 20px;
-  background: var(--muted);
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  gap: 10px 24px;
+  padding: 0 0 24px;
+  border-bottom: 1px solid var(--border);
 }
 .properties .field {
   display: grid;
@@ -847,7 +870,8 @@ button svg {
   height: 36px;
   padding: 6px 10px;
   font-size: 13px;
-  background-color: var(--background);
+  border-color: transparent;
+  background-color: transparent;
 }
 .detail-section {
   padding: 28px 0;
@@ -1126,11 +1150,11 @@ button svg {
   grid-template-columns: 44% 56%;
 }
 .auth-brand {
-  background: #edf3f0;
+  background: #f4f4f1;
   padding: 50px 60px;
   display: flex;
   flex-direction: column;
-  color: #25483e;
+  color: #292927;
 }
 .auth-message {
   margin: auto 0;
@@ -1144,7 +1168,7 @@ button svg {
 }
 .auth-message p {
   font-size: 15px;
-  color: #6e837b;
+  color: #777772;
   line-height: 1.9;
   margin-top: 20px;
 }
@@ -1153,11 +1177,10 @@ button svg {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  transform: rotate(-3deg);
 }
 .auth-illustration > div {
   height: 47px;
-  border: 1px solid #d9e5dd;
+  border: 1px solid #deded9;
   background: #ffffffa0;
   border-radius: 7px;
   display: flex;
@@ -1177,7 +1200,7 @@ button svg {
 .auth-illustration i {
   height: 5px;
   width: 55%;
-  background: #dbe5df;
+  background: #deded9;
   border-radius: 4px;
   margin-right: auto;
 }
@@ -1188,13 +1211,13 @@ button svg {
   width: 23px;
   height: 23px;
   border-radius: 50%;
-  background: #d5e4dc;
+  background: #deded9;
   font-size: 11px;
 }
 .auth-foot {
   font-size: 11px;
   letter-spacing: 1px;
-  color: #8d9f96;
+  color: #777772;
 }
 .auth-main {
   display: flex;
@@ -1288,11 +1311,11 @@ select {
   box-shadow: 0 1px 3px #15282018;
 }
 :root.dark .sidebar nav > button.active {
-  color: #9dd5be;
+  color: var(--foreground);
 }
 :root.dark .avatar {
-  color: #b5dfcd;
-  background: #314a40;
+  color: var(--foreground);
+  background: var(--secondary);
 }
 .form-modal [data-slot="dialog-title"] {
   font-size: 20px;
@@ -1302,6 +1325,111 @@ select {
 .form-modal [data-slot="dialog-description"] {
   font-size: 13px;
   line-height: 1.6;
+}
+.page-header,
+.content-heading,
+.filters,
+.notice {
+  flex-shrink: 0;
+}
+.member-list {
+  overflow: auto;
+}
+.card-open {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  text-align: left;
+  border-radius: inherit;
+  cursor: grab;
+  touch-action: manipulation;
+}
+.card-open:active {
+  cursor: grabbing;
+}
+.card-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-right: 16px;
+}
+.card-heading .status-dot {
+  margin-left: auto;
+}
+.card-priority,
+.card-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.card-drag-handle {
+  position: absolute;
+  right: 5px;
+  top: 10px;
+  padding: 4px 1px;
+  color: var(--muted-foreground);
+  opacity: 0;
+  cursor: grab;
+}
+.issue-card:hover .card-drag-handle,
+.card-drag-handle:focus-visible {
+  opacity: 1;
+}
+.issue-card.is-dragging {
+  opacity: 0.25;
+  border-style: dashed;
+}
+.card-overlay {
+  padding: 16px;
+  transform: rotate(-2deg);
+  box-shadow: 0 16px 36px #00000024;
+  cursor: grabbing;
+}
+.board-card-slot {
+  position: relative;
+}
+.drop-before::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--foreground);
+}
+.board-drop-tail {
+  height: 80px;
+  border: 1px dashed var(--muted-foreground);
+  border-radius: 10px;
+  background: var(--secondary);
+}
+.board-column.is-drop-target {
+  background: var(--hover);
+}
+.board-heading > button {
+  margin-left: auto;
+}
+.board-empty {
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+.properties input:hover,
+.properties select:hover {
+  background-color: var(--muted);
+}
+.properties input:focus,
+.properties select:focus {
+  border-color: var(--border);
+  background-color: var(--background);
 }
 @media (max-width: 1000px) {
   .sidebar {
@@ -1446,7 +1574,10 @@ select {
     max-width: 360px;
   }
   .board {
-    padding: 20px 16px;
+    padding: 0;
+  }
+  .board-column {
+    min-width: 280px;
   }
   .notice {
     padding: 10px 16px;

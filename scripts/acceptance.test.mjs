@@ -345,6 +345,97 @@ test(
         await expect(page.locator(".board")).toBeVisible();
         await page.screenshot({ path: "test-results/board.png" });
       });
+      await t.test("Board moves, ordering, cancellation and reload persist correctly", async () => {
+        const card = page.locator(`[data-issue-id="${issue}"]`);
+        const from = await card.boundingBox();
+        const target = await page.locator('[data-status="done"]').boundingBox();
+        await page.mouse.move(from.x + 70, from.y + 50);
+        await page.mouse.down();
+        await page.mouse.move(from.x + 80, from.y + 55, { steps: 4 });
+        await page.mouse.move(target.x + 100, target.y + 120, { steps: 15 });
+        await expect(page.locator(".card-overlay")).toBeVisible();
+        await page.mouse.up();
+        await waitFor(
+          async () =>
+            (await request("/api/snapshot")).value.issues.find((item) => item.id === issue).fields
+              .status === "done",
+        );
+        await expect(page.locator(".issue-panel")).toHaveCount(0);
+        const handle = page.locator(`[data-issue-id="${second}"] .card-drag-handle`);
+        await handle.focus();
+        await handle.press("Space", { delay: 80 });
+        await expect(page.locator(".card-overlay")).toBeVisible();
+        await handle.press("ArrowDown");
+        await expect(page.locator(".drop-before, .board-drop-tail")).toBeVisible();
+        await page.screenshot({ path: "test-results/keyboard-drag.png" });
+        await handle.press("Space", { delay: 80 });
+        await waitFor(async () =>
+          Boolean(
+            (await request("/api/snapshot")).value.issues.find((item) => item.id === second).fields
+              .board_rank,
+          ),
+        );
+        const order = await page
+          .locator('[data-status="backlog"] [data-issue-id]')
+          .evaluateAll((cards) => cards.map((card) => card.dataset.issueId));
+        assert.notEqual(order[0], second);
+        await page.reload();
+        await expect(page.locator(`[data-status="done"] [data-issue-id="${issue}"]`)).toBeVisible();
+        assert.deepEqual(
+          await page
+            .locator('[data-status="backlog"] [data-issue-id]')
+            .evaluateAll((cards) => cards.map((card) => card.dataset.issueId)),
+          order,
+        );
+        await handle.focus();
+        await handle.press("Space", { delay: 80 });
+        await handle.press("ArrowRight");
+        await handle.press("Escape");
+        await expect(page.locator(".card-overlay")).toHaveCount(0);
+        assert.equal(
+          (await request("/api/snapshot")).value.issues.find((item) => item.id === second).fields
+            .status,
+          "backlog",
+        );
+        await context.setOffline(true);
+        await handle.press("Space", { delay: 80 });
+        await handle.press("ArrowRight");
+        await expect(page.locator('[data-status="todo"].is-drop-target')).toBeVisible();
+        await handle.press("Space", { delay: 80 });
+        await expect(
+          page.locator(`[data-status="todo"] [data-issue-id="${second}"]`),
+        ).toBeVisible();
+        await page.reload();
+        await expect(
+          page.locator(`[data-status="todo"] [data-issue-id="${second}"]`),
+        ).toBeVisible();
+        await context.setOffline(false);
+        await waitFor(
+          async () =>
+            (await request("/api/snapshot")).value.issues.find((item) => item.id === second).fields
+              .status === "todo",
+        );
+        await page.getByRole("button", { name: "新建任务 · 已完成", exact: true }).click();
+        await expect(page.locator('select[name="status"]')).toHaveValue("done");
+        await page.getByRole("button", { name: "取消", exact: true }).click();
+        const edgeCard = await page.locator(`[data-issue-id="${issue}"]`).boundingBox();
+        const boardBox = await page.locator(".board").boundingBox();
+        const originalScroll = await page.locator(".board").evaluate((board) => board.scrollLeft);
+        await page.mouse.move(edgeCard.x + 60, edgeCard.y + 55);
+        await page.mouse.down();
+        await page.mouse.move(boardBox.x + boardBox.width - 8, edgeCard.y + 60, { steps: 12 });
+        await expect
+          .poll(() => page.locator(".board").evaluate((board) => board.scrollLeft))
+          .toBeGreaterThan(originalScroll);
+        await page.keyboard.press("Escape");
+        await page.mouse.up();
+        assert.equal(
+          (await request("/api/snapshot")).value.issues.find((item) => item.id === issue).fields
+            .status,
+          "done",
+        );
+        await page.screenshot({ path: "test-results/board-redesign.png" });
+      });
       await t.test(
         "Offline edits, new issues, comments and attachments survive reload and synchronize",
         async () => {

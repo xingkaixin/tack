@@ -36,7 +36,7 @@ import {
   ApiError,
 } from "./lib/store";
 import { resumeDocuments } from "./lib/collaboration";
-import { statuses, priorities, type Snapshot } from "./lib/types";
+import { statuses, priorities, type Snapshot, type Fields } from "./lib/types";
 import { Button } from "./components/ui/button";
 import { CreateForm, Modal, Field } from "./components/Forms";
 import { IssueList } from "./components/IssueList";
@@ -210,6 +210,7 @@ function WorkspaceApp({ onLogout }: { onLogout: () => void }) {
     view?: string;
   };
   const navigate = useNavigate();
+  const [createStatus, setCreateStatus] = useState<Fields["status"]>("backlog");
   const [form, setForm] = useState<"issue" | "project" | "workspace" | "member" | null>(null);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("");
@@ -256,7 +257,10 @@ function WorkspaceApp({ onLogout }: { onLogout: () => void }) {
     page === "members"
       ? t("members")
       : project?.name || t(page === "mine" ? "myIssues" : "allIssues");
-  const create = () => setForm(projects.length ? "issue" : "project");
+  const create = (status: Fields["status"] = "backlog") => {
+    setCreateStatus(status);
+    setForm(projects.length ? "issue" : "project");
+  };
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -305,7 +309,7 @@ function WorkspaceApp({ onLogout }: { onLogout: () => void }) {
             </Select.Portal>
           </Select.Root>
         </div>
-        <Button variant="outline" className="sidebar-create" onClick={create}>
+        <Button variant="outline" className="sidebar-create" onClick={() => create()}>
           <Plus size={16} />
           {t("newIssue")}
         </Button>
@@ -488,7 +492,7 @@ function WorkspaceApp({ onLogout }: { onLogout: () => void }) {
               </Button>
             )
           ) : (
-            <Button onClick={create}>
+            <Button onClick={() => create()}>
               <Plus size={15} />
               {t("newIssue")}
             </Button>
@@ -602,6 +606,7 @@ function WorkspaceApp({ onLogout }: { onLogout: () => void }) {
       {form && (
         <CreateForm
           kind={form}
+          initialStatus={createStatus}
           data={data}
           workspace={workspace.id}
           project={project?.id}
