@@ -407,7 +407,9 @@ test(
         await secondPage.keyboard.press("End");
         await secondPage.keyboard.type(" Together.");
         await expect(page.locator(".rich-editor")).toContainText("Together.");
-        await expect(page.locator(".collaboration-carets__label")).toContainText("Test Admin");
+        await expect(page.locator(".collaboration-carets__label")).toContainText(
+          snapshot.user.name,
+        );
         await other.close();
       });
       await t.test(

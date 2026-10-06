@@ -22,7 +22,7 @@ mise exec -- pnpm dev
 
 开发地址为 <http://localhost:5173>，API 为 `127.0.0.1:3001`。Vite 开发模式用于热更新；完整的离线刷新通过 `pnpm start` 或验收测试中的构建产物验证。
 
-当前机器的 `.env` 已配置局域网开发库，不进入 Git。新环境需要复制 `.env.example` 并填写数据库密码。`APP_ORIGIN` 是允许写操作和 WebSocket 使用的前端 Origin 列表，逗号分隔；前端通过同源 `/api` 代理访问后端。
+首次运行前，复制 `.env.example` 为 `.env`，并按自己的环境配置数据库连接。`.env` 不进入 Git。`APP_ORIGIN` 是允许写操作和 WebSocket 使用的前端 Origin 列表，逗号分隔；前端通过同源 `/api` 代理访问后端。
 
 ## 首版功能
 
@@ -49,20 +49,17 @@ mise exec -- pnpm dev
 
 ## 数据库
 
-开发 PostgreSQL 运行在 `dev-host`：
+仓库提供 `infra/compose.yaml`，可以在本地启动 PostgreSQL，也可以通过 `DATABASE_URL` 连接已有实例。
 
-- Compose 目录：`/srv/tack/`
-- 连接地址：`127.0.0.1:55433`
-- 数据库和用户：`tack`
-- 数据目录：`/srv/tack/postgres/`
-- 密码：服务器目录内的 `.env` 和本机 `.env`，均未提交。
-
-仓库中的 `infra/compose.yaml` 是部署源文件，只运行 PostgreSQL。前后端不部署到服务器。
+使用 Compose 时，先设置 `POSTGRES_PASSWORD` 环境变量，并在 `.env` 的 `DATABASE_URL` 中填写相同的密码。默认数据库和用户为 `tack`，监听 `127.0.0.1:55433`，数据持久化到 Compose 文件旁的 `postgres/` 目录。
 
 ```sh
-ssh dev-host 'cd /srv/tack && docker compose ps'
-ssh dev-host 'cd /srv/tack && docker compose logs --tail=50 postgres'
+docker compose -f infra/compose.yaml up -d --wait
+docker compose -f infra/compose.yaml ps
+docker compose -f infra/compose.yaml logs --tail=50 postgres
 ```
+
+通过 `POSTGRES_BIND_IP` 和 `POSTGRES_PORT` 可以调整数据库监听地址和端口。具体主机信息和凭据仅保存在本地配置中，不提交到仓库。
 
 ## 验证
 
@@ -75,10 +72,10 @@ mise exec -- pnpm test
 
 `pnpm test` 构建应用，启动专用的测试 API（3002）和预览服务（4174），运行真实 PostgreSQL、WebSocket 和 Chromium 验收测试，然后关闭测试服务。不要同时运行 `pnpm test:serve`。
 
-测试使用同一 PostgreSQL 实例中的独立 `tack_test` 数据库，不使用开发库。当前服务器已创建该数据库；在新环境中先创建：
+测试默认使用同一 PostgreSQL 实例中的独立 `tack_test` 数据库，不使用开发库。使用仓库提供的 Compose 时，先创建测试库：
 
 ```sh
-ssh dev-host 'cd /srv/tack && docker compose exec -T postgres createdb -U tack tack_test'
+docker compose -f infra/compose.yaml exec -T postgres createdb -U tack tack_test
 ```
 
 也可以通过 `TEST_DATABASE_URL` 指定独立测试库，库名必须以 `_test` 结尾。测试账号和任务仅存在于测试库。
