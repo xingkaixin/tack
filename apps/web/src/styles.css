@@ -27,14 +27,14 @@
     sans-serif;
   color-scheme: light;
   --background: #fff;
-  --foreground: #263338;
-  --primary: #25766b;
-  --secondary: #e7efec;
-  --muted: #f3f5f5;
-  --muted-foreground: #748084;
-  --border: #e5e9e9;
-  --sidebar: #f7f9f8;
-  --hover: #f1f6f4;
+  --foreground: #202c33;
+  --primary: #176b5b;
+  --secondary: #deeee7;
+  --muted: #f2f5f4;
+  --muted-foreground: #627079;
+  --border: #dce3e1;
+  --sidebar: #f1f5f3;
+  --hover: #edf4f0;
   font-size: 14px;
   line-height: 1.5;
   color: var(--foreground);
@@ -47,7 +47,7 @@
   color-scheme: dark;
   --background: #1b2226;
   --foreground: #e2e9e9;
-  --primary: #368f81;
+  --primary: #287c6c;
   --secondary: #293e3b;
   --muted: #252e32;
   --muted-foreground: #9aa8ad;
@@ -163,23 +163,23 @@ button svg {
   overflow: hidden;
 }
 .sidebar {
-  width: 228px;
+  width: 240px;
   flex-shrink: 0;
   background: var(--sidebar);
   border-right: 1px solid var(--border);
-  padding: 25px 15px 12px;
+  padding: 24px 16px 16px;
   display: flex;
   flex-direction: column;
 }
 .sidebar .wordmark {
-  padding: 0 10px 24px;
+  padding: 0 8px 28px;
 }
 .workspace-switch {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 9px;
-  margin: 0 4px 20px;
+  gap: 10px;
+  margin: 0 8px 20px;
 }
 .workspace-switch select {
   appearance: none;
@@ -210,14 +210,13 @@ button svg {
 .small-avatar {
   width: 22px;
   height: 22px;
-  font-size: 10px;
+  font-size: 11px;
   border-radius: 50%;
 }
 .sidebar-create {
   width: 100%;
-  justify-content: flex-start !important;
-  box-shadow: 0 1px 2px #00000006;
-  margin-bottom: 22px;
+  justify-content: flex-start;
+  margin-bottom: 24px;
 }
 .sidebar nav {
   overflow: auto;
@@ -228,17 +227,19 @@ button svg {
   align-items: center;
   gap: 10px;
   width: 100%;
+  min-height: 38px;
   text-align: left;
-  padding: 8px 10px;
+  padding: 8px 12px;
   color: var(--muted-foreground);
   border-radius: 6px;
-  margin: 2px 0;
+  margin: 4px 0;
   font-size: 13px;
 }
 .sidebar nav > button.active {
   background: var(--secondary);
-  color: var(--foreground);
-  font-weight: 550;
+  color: var(--primary);
+  font-weight: 600;
+  box-shadow: inset 3px 0 var(--primary);
 }
 .sidebar nav > button:hover {
   background: var(--hover);
@@ -264,7 +265,7 @@ button svg {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--primary);
   background: var(--background);
 }
@@ -307,7 +308,7 @@ button svg {
 }
 .account small {
   display: block;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--muted-foreground);
 }
 .sidebar-tools {
@@ -325,9 +326,9 @@ button svg {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 62px;
+  min-height: 64px;
   border-bottom: 1px solid var(--border);
-  padding: 0 32px;
+  padding: 12px 32px;
   gap: 20px;
 }
 .breadcrumb {
@@ -344,19 +345,20 @@ button svg {
 .view-toggle {
   display: flex;
   gap: 2px;
-  border: 1px solid var(--border);
+  background: var(--muted);
+  border: 0;
   border-radius: 7px;
   padding: 3px;
 }
 .content-heading {
-  padding: 32px 36px 24px;
+  padding: 28px 32px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 20px;
 }
 .content-heading h1 {
-  font-size: 23px;
+  font-size: 24px;
   letter-spacing: -0.6px;
   font-weight: 650;
   display: flex;
@@ -379,19 +381,18 @@ button svg {
 }
 .filters {
   display: flex;
-  gap: 9px;
+  gap: 8px;
   align-items: center;
-  padding: 0 36px 20px;
+  padding: 0 32px 24px;
   border-bottom: 1px solid var(--border);
   flex-wrap: wrap;
 }
 .filters select {
   width: auto;
-  font-size: 12px;
-  padding: 6px 9px;
-  border-style: dashed;
-  background: transparent;
-  max-width: 155px;
+  height: 36px;
+  font-size: 13px;
+  padding: 6px 28px 6px 12px;
+  max-width: 180px;
 }
 .search-input {
   position: relative;
@@ -400,18 +401,19 @@ button svg {
   min-width: 200px;
   flex: 1;
   max-width: 320px;
-  margin-right: auto;
+  margin-right: 8px;
 }
 .search-input > svg {
   position: absolute;
-  left: 0;
+  left: 12px;
   color: var(--muted-foreground);
+  pointer-events: none;
 }
 .search-input input {
-  border: none;
-  padding: 6px 10px 6px 24px;
-  font-size: 12px;
-  background: transparent;
+  height: 36px;
+  padding: 6px 12px 6px 36px;
+  font-size: 13px;
+  background: var(--muted);
 }
 .issue-table-wrap {
   overflow: auto;
@@ -424,24 +426,24 @@ button svg {
   white-space: nowrap;
 }
 .issue-table th {
-  font-weight: 400;
+  font-weight: 500;
   color: var(--muted-foreground);
-  padding: 10px 16px;
-  background: var(--sidebar);
+  padding: 12px 16px;
+  background: var(--muted);
   border-bottom: 1px solid var(--border);
 }
 .issue-table th:first-child,
 .issue-table td:first-child {
-  padding-left: 36px;
-  width: 120px;
+  padding-left: 32px;
+  width: 110px;
 }
 .issue-table th:last-child,
 .issue-table td:last-child {
-  padding-right: 36px;
+  padding-right: 32px;
 }
 .issue-table td {
-  height: 51px;
-  padding: 10px 16px;
+  height: 56px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--border);
 }
 .issue-table tbody tr {
@@ -456,14 +458,14 @@ button svg {
   gap: 10px;
 }
 .table-title > span:nth-child(2) {
-  font-size: 13px;
-  font-weight: 450;
+  font-size: 14px;
+  font-weight: 500;
   max-width: 430px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .issue-id {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted-foreground);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -473,7 +475,7 @@ button svg {
   padding: 1px 6px;
   border: 1px solid var(--border);
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--muted-foreground);
   font-weight: 400;
   white-space: nowrap;
@@ -520,9 +522,9 @@ button svg {
 .assignee-cell {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   color: var(--muted-foreground);
-  font-size: 11px;
+  font-size: 12px;
 }
 .priority-urgent {
   color: #ca6a54;
@@ -570,10 +572,12 @@ button svg {
 }
 .board {
   display: flex;
-  gap: 20px;
-  padding: 22px 30px;
+  gap: 16px;
+  padding: 24px 32px;
   overflow-x: auto;
-  min-height: 70vh;
+  min-height: calc(100dvh - 220px);
+  background: var(--muted);
+  align-items: flex-start;
 }
 .board-column {
   min-width: 240px;
@@ -583,11 +587,12 @@ button svg {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 3px 15px;
+  padding: 0 4px 16px;
+  min-height: 40px;
 }
 .board-heading h3 {
-  font-size: 12px;
-  font-weight: 550;
+  font-size: 13px;
+  font-weight: 600;
 }
 .count {
   font-size: 11px;
@@ -604,19 +609,20 @@ button svg {
 .issue-card {
   background: var(--background);
   border: 1px solid var(--border);
-  padding: 13px;
+  padding: 16px;
   text-align: left;
-  border-radius: 7px;
-  box-shadow: 0 2px 3px #00000003;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px #132e2310;
 }
 .issue-card:hover {
   border-color: #96b5aa;
 }
 .issue-card h4 {
-  font-size: 13px;
-  font-weight: 500;
-  margin: 8px 0 13px;
-  line-height: 1.5;
+  font-size: 14px;
+  font-weight: 550;
+  margin: 8px 0 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
 }
 .card-labels {
   display: flex;
@@ -629,7 +635,7 @@ button svg {
   gap: 10px;
   margin-top: 14px;
   color: var(--muted-foreground);
-  font-size: 10px;
+  font-size: 11px;
 }
 .notice {
   display: flex;
@@ -681,12 +687,12 @@ button svg {
   font-size: 11px;
 }
 .form-modal {
-  max-width: 470px !important;
-  padding: 25px !important;
-  border-radius: 10px !important;
+  max-width: min(480px, calc(100vw - 32px));
+  padding: 28px;
+  border-radius: 12px;
 }
 .form-modal.wide {
-  max-width: 650px !important;
+  max-width: min(650px, calc(100vw - 32px));
   max-height: 85vh;
   overflow: auto;
 }
@@ -699,8 +705,8 @@ button svg {
 .field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  font-size: 12px;
+  gap: 8px;
+  font-size: 13px;
   min-width: 0;
 }
 .field > span {
@@ -720,33 +726,27 @@ button svg {
   margin-top: 8px;
 }
 .issue-panel {
-  left: auto !important;
-  right: 0 !important;
-  top: 0 !important;
-  transform: none !important;
-  translate: none !important;
-  width: 720px !important;
-  max-width: 95vw !important;
-  height: 100dvh !important;
-  border-radius: 0 !important;
-  padding: 0 !important;
-  gap: 0 !important;
-  display: flex !important;
+  width: 800px;
+  max-width: 95vw;
+  height: 100dvh;
+  display: flex;
   flex-direction: column;
-  box-shadow: -8px 0 40px #0000000d;
+  border-left: 1px solid var(--border);
+  box-shadow: -12px 0 48px #142a221a;
 }
 .detail-top {
-  height: 58px;
-  min-height: 58px;
+  min-height: 64px;
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 0 24px;
+  gap: 12px;
+  padding: 0 32px;
   border-bottom: 1px solid var(--border);
 }
 .detail-project {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted-foreground);
+  border-left: 1px solid var(--border);
+  padding-left: 12px;
 }
 .detail-top > button {
   margin-left: auto;
@@ -756,18 +756,19 @@ button svg {
   flex: 1;
 }
 .detail-main {
-  padding: 25px 32px 40px;
+  padding: 28px 32px 40px;
 }
 .issue-title-input {
   padding: 0;
   border: 0;
-  font-size: 23px;
-  font-weight: 600;
+  font-size: 26px;
+  font-weight: 650;
   letter-spacing: -0.5px;
-  line-height: 1.5;
+  line-height: 1.4;
   resize: none;
-  min-height: 66px;
-  margin-bottom: 18px;
+  field-sizing: content;
+  min-height: 40px;
+  margin-bottom: 24px;
 }
 .issue-title-input:focus {
   outline: none;
@@ -775,30 +776,32 @@ button svg {
 .properties {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 13px 20px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--border);
+  gap: 12px 24px;
+  padding: 20px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
 }
 .properties .field {
   display: grid;
-  grid-template-columns: 80px 1fr;
+  grid-template-columns: 72px minmax(0, 1fr);
   align-items: center;
   gap: 8px;
-  font-size: 11px;
+  font-size: 12px;
 }
 .properties input,
 .properties select {
-  padding: 5px 7px;
-  font-size: 11px;
-  border-color: transparent;
-  background: var(--muted);
+  height: 36px;
+  padding: 6px 10px;
+  font-size: 13px;
+  background-color: var(--background);
 }
 .detail-section {
-  padding: 24px 0;
+  padding: 28px 0;
   border-bottom: 1px solid var(--border);
 }
 .detail-section h3 {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -819,10 +822,10 @@ button svg {
 }
 .editor-toolbar {
   display: flex;
-  gap: 2px;
-  padding: 5px;
+  gap: 4px;
+  padding: 8px;
   border-bottom: 1px solid var(--border);
-  background: var(--sidebar);
+  background: var(--muted);
   flex-wrap: wrap;
 }
 .editor-toolbar button[aria-pressed="true"] {
@@ -830,10 +833,10 @@ button svg {
   color: var(--primary);
 }
 .rich-editor {
-  min-height: 150px;
-  padding: 14px 16px;
+  min-height: 180px;
+  padding: 16px 20px;
   outline: none;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.8;
 }
 .rich-editor p {
@@ -873,10 +876,10 @@ button svg {
   text-decoration: underline;
 }
 .editor-status {
-  padding: 5px 10px;
-  font-size: 10px;
+  padding: 8px 12px;
+  font-size: 11px;
   display: flex;
-  gap: 5px;
+  gap: 6px;
   align-items: center;
   justify-content: flex-end;
   color: var(--muted-foreground);
@@ -897,7 +900,7 @@ button svg {
 .collaboration-carets__label {
   border-radius: 3px 3px 3px 0;
   color: #fff;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
   left: -1px;
   line-height: normal;
@@ -926,16 +929,19 @@ button svg {
 }
 .detail-section > select {
   font-size: 12px;
-  border-style: dashed;
-  margin-top: 10px;
+  margin-top: 12px;
 }
 .upload-button {
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 11px;
+  gap: 6px;
+  min-height: 32px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
   cursor: pointer;
-  color: var(--primary);
+  color: var(--foreground);
   position: relative;
 }
 .upload-button input {
@@ -963,7 +969,7 @@ button svg {
 .attachment small {
   display: block;
   color: var(--muted-foreground);
-  font-size: 10px;
+  font-size: 11px;
 }
 .detail-tabs {
   display: flex;
@@ -1006,7 +1012,7 @@ button svg {
 }
 .comment time {
   color: var(--muted-foreground);
-  font-size: 10px;
+  font-size: 11px;
 }
 .comment p {
   font-size: 12px;
@@ -1030,7 +1036,7 @@ button svg {
 }
 .activity-list time {
   display: block;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--muted-foreground);
   margin-top: 4px;
 }
@@ -1130,7 +1136,7 @@ button svg {
   height: 23px;
   border-radius: 50%;
   background: #d5e4dc;
-  font-size: 10px;
+  font-size: 11px;
 }
 .auth-foot {
   font-size: 11px;
@@ -1193,6 +1199,57 @@ button svg {
     transform: rotate(360deg);
   }
 }
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='m3 4.5 3 3 3-3' fill='none' stroke='%23758289' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+}
+.properties select {
+  padding-right: 28px;
+}
+.issue-table th:nth-child(2) {
+  width: 45%;
+}
+.issue-table tbody tr:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+.editor-wrap:focus-within {
+  border-color: var(--primary);
+}
+.detail-section:last-child {
+  border-bottom: 0;
+}
+.attachment:hover,
+.relation-row:hover {
+  background: var(--hover);
+}
+.attachment > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.view-toggle button[aria-pressed="true"] {
+  background: var(--background);
+  box-shadow: 0 1px 3px #15282018;
+}
+:root.dark .sidebar nav > button.active {
+  color: #9dd5be;
+}
+:root.dark .avatar {
+  color: #b5dfcd;
+  background: #314a40;
+}
+.form-modal [data-slot="dialog-title"] {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.form-modal [data-slot="dialog-description"] {
+  font-size: 13px;
+  line-height: 1.6;
+}
 @media (max-width: 1000px) {
   .sidebar {
     width: 200px;
@@ -1219,7 +1276,7 @@ button svg {
     padding: 35px;
   }
   .properties .field {
-    grid-template-columns: 70px 1fr;
+    grid-template-columns: 70px minmax(0, 1fr);
   }
 }
 @media (max-width: 700px) {
@@ -1287,6 +1344,12 @@ button svg {
   .issue-table th:first-child,
   .issue-table td:first-child {
     padding-left: 16px;
+  }
+  .issue-table th:nth-child(2) {
+    width: auto;
+  }
+  .issue-table th:first-child {
+    width: 90px;
   }
   .issue-table th:nth-child(n + 3),
   .issue-table td:nth-child(n + 3) {

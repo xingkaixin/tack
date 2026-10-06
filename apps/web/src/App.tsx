@@ -412,7 +412,8 @@ function WorkspaceApp({ onLogout }: { onLogout: () => void }) {
           {page !== "members" && (
             <div className="view-toggle">
               <Button
-                variant={view === "list" ? "secondary" : "ghost"}
+                variant="ghost"
+                aria-pressed={view === "list"}
                 size="sm"
                 onClick={() => go({ view: "list" })}
               >
@@ -420,7 +421,8 @@ function WorkspaceApp({ onLogout }: { onLogout: () => void }) {
                 {t("list")}
               </Button>
               <Button
-                variant={view === "board" ? "secondary" : "ghost"}
+                variant="ghost"
+                aria-pressed={view === "board"}
                 size="sm"
                 onClick={() => go({ view: "board" })}
               >
