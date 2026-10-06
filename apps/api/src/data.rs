@@ -83,6 +83,19 @@ async fn validate_fields(
     workspace: Uuid,
 ) -> Result<()> {
     string(fields, "title", 300)?;
+    if !fields["board_rank"].is_null() {
+        let rank = fields["board_rank"]
+            .as_str()
+            .ok_or_else(|| Error::bad("field_invalid"))?;
+        if !rank.starts_with("a0")
+            || rank.len() < 3
+            || rank.len() > 512
+            || rank.ends_with('0')
+            || !rank.bytes().all(|c| c.is_ascii_alphanumeric())
+        {
+            return Err(Error::bad("field_invalid"));
+        }
+    }
     if !["backlog", "todo", "in_progress", "done", "cancelled"]
         .contains(&fields["status"].as_str().unwrap_or(""))
     {
@@ -270,6 +283,7 @@ pub async fn mutate(
                     "labels",
                     "parent",
                     "blocked_by",
+                    "board_rank",
                 ]
                 .contains(&key.as_str())
                 {
